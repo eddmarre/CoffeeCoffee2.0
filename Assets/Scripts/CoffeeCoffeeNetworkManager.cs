@@ -17,7 +17,7 @@ public class CoffeeCoffeeNetworkManager : NetworkManager
         
         
         SpawnSomething(cup);
-        SpawnSomething(customer);
+       // SpawnSomething(customer);
     }
 
     private void SpawnSomething(GameObject objectToSPawn)

@@ -4,28 +4,27 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
-public class Interactable : NetworkBehaviour
+public abstract class Interactable : NetworkBehaviour
 {
-    private void Start()
+    public override void OnStartServer()
     {
         Player.OnAnyPlayerInteraction += CmdPlayer_OnAnyPlayerInteraction;
     }
 
-    private void OnDisable()
+    public override void OnStopServer()
     {
         Player.OnAnyPlayerInteraction -= CmdPlayer_OnAnyPlayerInteraction;
     }
 
 
-    private void CmdPlayer_OnAnyPlayerInteraction()
+    private void CmdPlayer_OnAnyPlayerInteraction(Interactable interactable)
     {
-        RpcDeactivateInteractable();
+        RpcDeactivateInteractable(interactable);
     }
 
     [ClientRpc]
-    private void RpcDeactivateInteractable()
+    protected virtual void RpcDeactivateInteractable(Interactable interactable)
     {
-        Debug.Log("I've been interacted with");
-        gameObject.SetActive(false);
+        Debug.Log($"I've been presed {interactable.transform.name}");
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Mirror;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,7 +10,7 @@ using UnityEngine.UIElements;
 
 public class Player : NetworkBehaviour
 {
-    public static event Action OnAnyPlayerInteraction;
+    [CanBeNull] public static event Action<Interactable> OnAnyPlayerInteraction;
     
     public static PlayerController playerController; 
     
@@ -24,6 +25,9 @@ public class Player : NetworkBehaviour
     private Pickup _pickup;
     
     [SyncVar] private bool isHoldingItem = false;
+
+
+    private bool isDone = false;
 
     #region Server
     
@@ -45,9 +49,9 @@ public class Player : NetworkBehaviour
     }
 
     [Command]
-    public void CmdInteract()
+    public void CmdInteract(Interactable interactable)
     {
-        OnAnyPlayerInteraction?.Invoke();
+        OnAnyPlayerInteraction?.Invoke(interactable);
     }
 
     #endregion
@@ -104,6 +108,8 @@ public class Player : NetworkBehaviour
 
     private void TryInteract()
     {
+        // if(isDone) return;
+        
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = playerCameraHandler.GetPlayerCamera().ScreenPointToRay(mousePos);
 
@@ -111,7 +117,16 @@ public class Player : NetworkBehaviour
         
         hit.transform.TryGetComponent(out Interactable interactable);
 
-        CmdInteract();
-      
+        CmdInteract(interactable);
+
+        //isDone = true;
+
+       // StartCoroutine(ResetFinishedActionCoolDown());
+    }
+
+    IEnumerator ResetFinishedActionCoolDown()
+    {
+        yield return new WaitForSeconds(.5f);
+        isDone = false;
     }
 }
