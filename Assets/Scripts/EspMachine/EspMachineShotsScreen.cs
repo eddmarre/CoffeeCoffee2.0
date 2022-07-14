@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using TMPro;
 using UnityEngine;
 
-public class EspMachineShotsScreen : MonoBehaviour
+public class EspMachineShotsScreen : NetworkBehaviour
 {
     [SerializeField] private TextMeshPro shotSettingText;
 
@@ -13,20 +14,27 @@ public class EspMachineShotsScreen : MonoBehaviour
 
     private void Start()
     {
-        EspMachineButton.onShotsButtonPressed += EspMachineButton_onShotsButtonPressed;
+        EspMachineButton.onShotsButtonPressed += CmdEspMachineButton_onShotsButtonPressed;
     }
 
     private void OnDisable()
     {
-        EspMachineButton.onShotsButtonPressed -= EspMachineButton_onShotsButtonPressed;
+        EspMachineButton.onShotsButtonPressed -= CmdEspMachineButton_onShotsButtonPressed;
     }
 
-    private void EspMachineButton_onShotsButtonPressed()
+    [Command(requiresAuthority = false)]
+    private void CmdEspMachineButton_onShotsButtonPressed()
+    {
+        RpcEspMachineButton_onShotsButtonPressed();
+    }
+
+    [ClientRpc]
+    private void RpcEspMachineButton_onShotsButtonPressed()
     {
         _counter++;
         if (_counter > shotSettingTexts.Length - 1)
             _counter = 0;
-        
+
         SetShotSettingsText(shotSettingTexts[_counter].ToString());
     }
 

@@ -1,28 +1,35 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using TMPro;
 using UnityEngine;
 
-public class EspMachineTemperatureScreen : MonoBehaviour
+public class EspMachineTemperatureScreen : NetworkBehaviour
 {
     [SerializeField] private TextMeshPro temperatureScreenText;
-    
+
     private int _counter = 0;
     private string[] _temperatureSettings = {"Reg", "Ex Hot", "Warm"};
 
     private void Start()
     {
-        EspMachineButton.onTemperatureButtonPressed += EspMachineButton_onTemperatureButtonPressed;
+        EspMachineButton.onTemperatureButtonPressed += CmdEspMachineButton_onTemperatureButtonPressed;
     }
 
     private void OnDisable()
     {
-        EspMachineButton.onTemperatureButtonPressed -= EspMachineButton_onTemperatureButtonPressed;
+        EspMachineButton.onTemperatureButtonPressed -= CmdEspMachineButton_onTemperatureButtonPressed;
     }
 
+    [Command(requiresAuthority = false)]
+    private void CmdEspMachineButton_onTemperatureButtonPressed()
+    {
+        RpcEspMachineButton_onTemperatureButtonPressed();
+    }
 
-    private void EspMachineButton_onTemperatureButtonPressed()
+    [ClientRpc]
+    private void RpcEspMachineButton_onTemperatureButtonPressed()
     {
         _counter++;
         if (_counter > _temperatureSettings.Length - 1)

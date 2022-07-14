@@ -29,11 +29,16 @@ public class MovementHandler : NetworkBehaviour
         float moveSpeed = 10f;
         transform.position += moveDir * moveSpeed * Time.deltaTime;
 
-        SetWalkingAnimation(currentPos);
+        CmdSetWalkingAnimation(currentPos);
     }
 
     [Command]
-    private void SetWalkingAnimation(Vector3 currentPos)
+    private void CmdSetWalkingAnimation(Vector3 currentPos)
+    {
+        RpcSetWalkingAnimation(currentPos);
+    }
+    [ClientRpc]
+    private void RpcSetWalkingAnimation(Vector3 currentPos)
     {
         if (currentPos != transform.position)
         {

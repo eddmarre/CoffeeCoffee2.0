@@ -57,7 +57,6 @@ public class EspMachineButton : Interactable
                 onRegularButtonPressed?.Invoke();
                 break;
             case ButtonType.Pour:
-                Debug.Log($"{button} is pressed");
                 onPourButtonPressed?.Invoke();
                 break;
             case ButtonType.Shots:

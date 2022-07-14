@@ -5,24 +5,25 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Pickup : NetworkBehaviour
+public abstract class Pickup : NetworkBehaviour
 {
     [SerializeField] [SyncVar] private Transform _parent;
-    [SerializeField] private Rigidbody rigidbody;
-    private bool isBeingHeld = false;
+    [SerializeField] private new Rigidbody rigidbody;
+    [SerializeField] private bool isBeingHeld = false;
 
-
+    
     public bool GetIsBeingHeld()
     {
         return isBeingHeld;
     }
-    
+
     [Server]
     public void SetParent(Transform parent)
     {
         _parent = parent;
     }
-    
+
+    [Server]
     public void DropItem(float throwForce)
     {
         GetComponent<NetworkIdentity>().RemoveClientAuthority();
@@ -30,7 +31,17 @@ public class Pickup : NetworkBehaviour
         isBeingHeld = false;
         rigidbody.AddRelativeForce(Vector3.forward * throwForce);
     }
-    
+
+    [Server]
+    public void PlaceItem(Vector3 placePosition, Quaternion placeRotation)
+    {
+        GetComponent<NetworkIdentity>().RemoveClientAuthority();
+        isBeingHeld = false;
+        transform.position = placePosition;
+        transform.rotation = placeRotation;
+    }
+
+    [ServerCallback]
     private void Update()
     {
         if (_parent != null)
@@ -41,5 +52,4 @@ public class Pickup : NetworkBehaviour
             isBeingHeld = true;
         }
     }
-    
 }

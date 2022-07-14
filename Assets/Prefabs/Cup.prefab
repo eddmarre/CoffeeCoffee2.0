@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 1000333484053522657}
   - component: {fileID: 991763779093094445}
   - component: {fileID: 33333533174150599}
-  - component: {fileID: 1495998997374318158}
   - component: {fileID: 4233209823054737052}
   - component: {fileID: 5830464562871742266}
+  - component: {fileID: 1676518722922122194}
   - component: {fileID: 5975457274361133450}
   m_Layer: 6
   m_Name: Cup
@@ -101,22 +101,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.21021608, y: 0.15768227, z: 0.15369384}
   m_Center: {x: -0.038555298, y: 0.078841135, z: -0.0000012144446}
---- !u!114 &1495998997374318158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 978536976493756975}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6cfbb8b214b4ea4893831886632fdf1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  _parent: {fileID: 0}
-  rigidbody: {fileID: 5975457274361133450}
 --- !u!114 &4233209823054737052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,6 +152,23 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+--- !u!114 &1676518722922122194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978536976493756975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ce00f1a70cc3a04ab3e81f3039eb425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  _parent: {fileID: 0}
+  rigidbody: {fileID: 5975457274361133450}
+  isBeingHeld: 0
 --- !u!54 &5975457274361133450
 Rigidbody:
   m_ObjectHideFlags: 0

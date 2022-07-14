@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Mirror;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -10,42 +11,54 @@ using UnityEngine.UIElements;
 
 public class Player : NetworkBehaviour
 {
-    [CanBeNull] public static event Action<Interactable> OnAnyPlayerInteraction;
-    
-    public static PlayerController playerController; 
-    
+    public static event Action<Interactable> OnAnyPlayerInteraction;
+    public static event Action<Pickup> OnAnyPlayerPickUp;
+
+    public static PlayerController playerController;
+
     [SerializeField] private MovementHandler playerMovementHandler;
     [SerializeField] private CameraHandler playerCameraHandler;
-    
+
     [SerializeField] private LayerMask pickUpLayer;
     [SerializeField] private LayerMask interactLayer;
-    
+    [SerializeField] private LayerMask placeLayer;
+
     [SerializeField] private Transform holdItemTransform;
 
-    private Pickup _pickup;
-    
-    [SyncVar] private bool isHoldingItem = false;
+    [SyncVar] private Pickup _playerHeldPickup;
 
+    [SerializeField] [SyncVar] private bool _isHoldingItem = false;
 
-    private bool isDone = false;
 
     #region Server
-    
+
     [Command]
     public void CmdPickUp(Pickup pickupItem)
     {
-        _pickup = pickupItem;
-        _pickup.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
-        _pickup.SetParent(holdItemTransform);
-        isHoldingItem = true;
+        _playerHeldPickup = pickupItem;
+
+        _playerHeldPickup.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
+        _playerHeldPickup.SetParent(holdItemTransform);
+
+        _isHoldingItem = true;
+
+        OnAnyPlayerPickUp?.Invoke(pickupItem);
     }
 
     [Command]
     public void CmdDropItem()
     {
-        _pickup.SetParent(null);
-        _pickup.DropItem(100f);
-        isHoldingItem = false;
+        _playerHeldPickup.SetParent(null);
+        _playerHeldPickup.DropItem(100f);
+        _isHoldingItem = false;
+    }
+
+    [Command]
+    public void CmdPlaceItem(Vector3 placementPosition, Quaternion placementRotation)
+    {
+        _playerHeldPickup.SetParent(null);
+        _playerHeldPickup.PlaceItem(placementPosition, placementRotation);
+        _isHoldingItem = false;
     }
 
     [Command]
@@ -58,22 +71,31 @@ public class Player : NetworkBehaviour
 
     #region Client
 
-    
+    [ClientCallback]
     private void Update()
     {
         if (!isLocalPlayer) return;
 
         playerMovementHandler.MovePlayer();
 
+
         if (Input.GetKeyDown(KeyCode.E))
         {
+            // if (Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue))
+            // {
+            //     DebugLine(hit.point);
+            //     Debug.Log($"{hit.transform.name}");
+            // }
+
             TryPickup();
+            ClientTryPickupFromEspMachine();
             TryInteract();
+            TryPlace();
         }
 
         if (Input.GetKey(KeyCode.Q))
         {
-            if (isHoldingItem)
+            if (_isHoldingItem)
                 CmdDropItem();
         }
     }
@@ -89,15 +111,13 @@ public class Player : NetworkBehaviour
 
     private void TryPickup()
     {
-        if (isHoldingItem)
+        if (_isHoldingItem)
         {
             return;
         }
 
-        Vector2 mousePos = Mouse.current.position.ReadValue();
-        Ray ray = playerCameraHandler.GetPlayerCamera().ScreenPointToRay(mousePos);
         //TODO: fix range
-        if (!Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, pickUpLayer)) return;
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, pickUpLayer)) return;
 
         hit.transform.TryGetComponent(out Pickup item);
 
@@ -106,27 +126,64 @@ public class Player : NetworkBehaviour
         CmdPickUp(item);
     }
 
+    private void ClientTryPickupFromEspMachine()
+    {
+        if (_isHoldingItem)
+        {
+            return;
+        }
+
+        if (NetworkServer.active) return;
+
+        //TODO: fix range
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue)) return;
+
+        if (!hit.transform.TryGetComponent(out EspMachinePourButtonTrigger trigger)) return;
+
+        if (!trigger.GetHasObject()) return;
+
+        trigger.GetPickUp();
+
+        CmdPickUp(trigger.GetPickUp());
+    }
+
     private void TryInteract()
     {
-        // if(isDone) return;
-        
-        Vector2 mousePos = Mouse.current.position.ReadValue();
-        Ray ray = playerCameraHandler.GetPlayerCamera().ScreenPointToRay(mousePos);
+        //TODO: fix range
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, interactLayer)) return;
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, interactLayer)) return;
-        
         hit.transform.TryGetComponent(out Interactable interactable);
 
         CmdInteract(interactable);
-
-        //isDone = true;
-
-       // StartCoroutine(ResetFinishedActionCoolDown());
     }
 
-    IEnumerator ResetFinishedActionCoolDown()
+    private void TryPlace()
     {
-        yield return new WaitForSeconds(.5f);
-        isDone = false;
+        if (!_isHoldingItem) return;
+        //TODO: fix rangeS
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, placeLayer)) return;
+
+        hit.transform.TryGetComponent(out Placeable placeable);
+
+        if (!placeable.CanPlace(_playerHeldPickup)) return;
+
+        if (placeable.GetHasItem()) return;
+
+        placeable.SetHasItem(true);
+
+        CmdPlaceItem(placeable.GetObjectPlacementPosition(), placeable.GetObjectPlacementRotation());
+    }
+
+    private Ray CastRay()
+    {
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = playerCameraHandler.GetPlayerCamera().ScreenPointToRay(mousePos);
+
+        return ray;
+    }
+
+    private void DebugLine(Vector3 position)
+    {
+        Debug.DrawLine(transform.position, position, Color.red, float.MaxValue);
     }
 }

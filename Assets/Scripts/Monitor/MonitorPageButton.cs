@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MonitorPageButton : Interactable
 {
-    [SerializeField] private Renderer renderer;
+    [SerializeField] private new Renderer renderer;
     [SerializeField] private GameObject pageScreen;
     [SerializeField] private Transform spawnedTransform;
 
@@ -16,9 +16,7 @@ public class MonitorPageButton : Interactable
     protected override void RpcDeactivateInteractable(Interactable interactable)
     {
         if (this != interactable) return;
-
-        Debug.Log(gameObject.name);
-
+        
         MonitorScreen.Instance.SetPageButtonActive(this);
     }
 

@@ -4,7 +4,7 @@ namespace Monitor
 {
     public class MonitorBevPage : MonoBehaviour
     {
-        [SerializeField] private MonitorBevButton[] monitorBevButtons;
+        [SerializeField] private MonitorOrderBevButton[] monitorBevButtons;
 
         public void SetCollisions(bool value)
         {
