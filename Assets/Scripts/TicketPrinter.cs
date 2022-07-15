@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class TicketPrinter : Interactable
 {
-    private Order _order;
+    [SerializeField] private Order _order;
     [SerializeField] private GameObject ticketGameObject;
     [SerializeField] private Transform ticketGameObjectSpawn;
 
@@ -33,15 +33,13 @@ public class TicketPrinter : Interactable
 
         if (_order == null) return;
 
-        //Debug.Log(_order.ToString());
-      
         if (NetworkServer.active)
         {
             GameObject newTicket =
                 Instantiate(ticketGameObject, ticketGameObjectSpawn.position, ticketGameObjectSpawn.rotation);
 
-            newTicket.GetComponent<Ticket>().SetOrder(_order);
-            
+            newTicket.GetComponent<Ticket>().SetTicketOrder(_order);
+
             NetworkServer.Spawn(newTicket);
         }
 

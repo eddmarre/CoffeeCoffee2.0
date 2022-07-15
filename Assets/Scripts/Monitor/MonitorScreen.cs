@@ -1,16 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
 public class MonitorScreen : MonoBehaviour
 {
     public static MonitorScreen Instance { get; private set; }
 
-    public event Action<Order> OnOrderCreated; 
-    
+    public event Action<Order> OnOrderCreated;
+
     [SerializeField] private Material[] buttonColors;
-    
+
     [SerializeField] private MonitorSizesButton[] monitorSizesButtons;
     [SerializeField] private MonitorShotsButton[] monitorShotsButtons;
     [SerializeField] private MonitorEspressoButton[] monitorEspressoButtons;
@@ -27,9 +28,8 @@ public class MonitorScreen : MonoBehaviour
     private Order _order;
 
     private WaitForSeconds _resetButtonsWaitForSeconds;
-    
-    private float _resetTimer = .1f;
-    
+
+    private const float RESET_TIMER = .1f;
 
     private void Start()
     {
@@ -38,10 +38,11 @@ public class MonitorScreen : MonoBehaviour
 
         Instance = this;
 
-        _resetButtonsWaitForSeconds = new WaitForSeconds(_resetTimer);
-        
+        _resetButtonsWaitForSeconds = new WaitForSeconds(RESET_TIMER);
+
         SetPageButtonActive(monitorPageButtons[0]);
     }
+
     public void CreateOrder()
     {
         _order = new Order(
@@ -52,10 +53,10 @@ public class MonitorScreen : MonoBehaviour
             GetActiveMonitorBeverageButtonName(),
             GetActiveMonitorTemperatureButtonName(),
             GetActiveMonitorMilksButtonName()
-            );
-        
+        );
+
         OnOrderCreated?.Invoke(_order);
-        
+
         StartCoroutine(ResetButtonActivity());
     }
 

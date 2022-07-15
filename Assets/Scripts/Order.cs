@@ -1,5 +1,3 @@
-
-
 public class Order
 {
     private string _size;
@@ -13,40 +11,39 @@ public class Order
     private string _temperature;
     private string _milk;
 
-    
+
     public Order()
     {
         _size = OrderDictionary.SIZES[0];
         _shot = OrderDictionary.SHOTS[0];
         _espresso = OrderDictionary.ESPRESSOS[0];
-        
+
         _syrup = OrderDictionary.SYRUPS[0];
-        
+
         _beverage = OrderDictionary.BEVERAGES[0];
-        
+
         _temperature = OrderDictionary.TEMPERATURES[0];
         _milk = OrderDictionary.MILKS[0];
     }
 
-    public Order(string size, 
-        string shots, 
-        string espresso, 
-        string syrup, 
-        string beverage, 
+    public Order(string size,
+        string shots,
+        string espresso,
+        string syrup,
+        string beverage,
         string temperature,
         string milk)
     {
         _size = size;
         _shot = shots;
         _espresso = espresso;
-        
+
         _syrup = syrup;
-        
+
         _beverage = beverage;
-        
+
         _temperature = temperature;
         _milk = milk;
-        
     }
     
     public void SetSize(string size)
@@ -118,10 +115,10 @@ public class Order
     {
         return _milk;
     }
-    
+
     public override string ToString()
     {
-        return _size + " " + _shot + " " + _espresso + " " + _syrup + " " + _beverage + " " + _temperature + " " + _milk;
+        return _size + " " + _shot + " " + _espresso + " " + _syrup + " " + _beverage + " " + _temperature + " " +
+               _milk;
     }
-    
 }
