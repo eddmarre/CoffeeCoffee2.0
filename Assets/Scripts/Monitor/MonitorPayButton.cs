@@ -10,7 +10,7 @@ public class MonitorPayButton : Interactable
         
         
         [ClientRpc]
-        protected override void RpcDeactivateInteractable(Interactable interactable)
+        protected override void RpcDeactivateInteractable(Interactable interactable, Player player)
         {
                 if (this != interactable) return;
                 MonitorScreen.Instance.CreateOrder();

@@ -25,7 +25,7 @@ public class MonitorEspressoButton : Interactable, IMonitorOrderButton
         collider.enabled = value;
     }
     [ClientRpc]
-    protected override void RpcDeactivateInteractable(Interactable interactable)
+    protected override void RpcDeactivateInteractable(Interactable interactable, Player player)
     {
         if(this!=interactable) return;
         

@@ -27,7 +27,7 @@ public class MonitorSyrupButton : Interactable, IMonitorOrderButton
     }
 
     [ClientRpc]
-    protected override void RpcDeactivateInteractable(Interactable interactable)
+    protected override void RpcDeactivateInteractable(Interactable interactable, Player player)
     {
         if (this != interactable) return;
         MonitorScreen.Instance.SetMonitorSyrupButtonActive(this);

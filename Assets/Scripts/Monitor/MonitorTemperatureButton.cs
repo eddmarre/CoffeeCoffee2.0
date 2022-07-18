@@ -25,7 +25,7 @@ public class MonitorTemperatureButton : Interactable, IMonitorOrderButton
     }
     
     [ClientRpc]
-    protected override void RpcDeactivateInteractable(Interactable interactable)
+    protected override void RpcDeactivateInteractable(Interactable interactable, Player player)
     {
         if (this != interactable) return;
         MonitorScreen.Instance.SetMonitorTemperatureButtonActive(this);

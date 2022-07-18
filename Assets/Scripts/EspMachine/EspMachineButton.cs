@@ -37,11 +37,11 @@ public class EspMachineButton : Interactable
     public static event Action onLeverButtonPressed;
 
     [ClientRpc]
-    protected override void RpcDeactivateInteractable(Interactable interactable)
+    protected override void RpcDeactivateInteractable(Interactable interactable, Player player)
     {
         //ensures this method will only get called for this button
-        if(this!=interactable) return;
-        
+        if (this != interactable) return;
+
         if (TryGetComponent(out Animator animator))
             animator.SetTrigger("isPressed");
 

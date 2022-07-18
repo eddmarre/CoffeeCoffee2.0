@@ -24,7 +24,7 @@ public class MonitorSizesButton : Interactable, IMonitorOrderButton
               collider.enabled = value;
        }
        [ClientRpc]
-       protected override void RpcDeactivateInteractable(Interactable interactable)
+       protected override void RpcDeactivateInteractable(Interactable interactable, Player player)
        {
               if(this!=interactable) return;
               MonitorScreen.Instance.SetMonitorSizeButtonActive(this);
