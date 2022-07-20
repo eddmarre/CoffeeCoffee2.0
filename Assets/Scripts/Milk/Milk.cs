@@ -12,7 +12,7 @@ public class Milk : Pickup
     [SyncVar(hook = nameof(OnMilkTextChange))]
     private string _milkText;
 
-    [SyncVar] private string _milkOrder;
+    [SyncVar] private string _milkOrderType;
 
     public enum MilkType
     {
@@ -23,9 +23,9 @@ public class Milk : Pickup
 
     private MilkType _milkType;
 
-    public string GetMilkOrder()
+    public string GetMilkOrderType()
     {
-        return _milkOrder;
+        return _milkOrderType;
     }
 
     public void SetMilkType(MilkType milkType)
@@ -47,15 +47,15 @@ public class Milk : Pickup
         {
             case MilkType.Regular:
                 _milkText = "R";
-                _milkOrder = OrderDictionary.MILKS[0];
+                _milkOrderType = OrderDictionary.MILKS[0];
                 break;
             case MilkType.Nonfat:
                 _milkText = "N";
-                _milkOrder = OrderDictionary.MILKS[1];
+                _milkOrderType = OrderDictionary.MILKS[1];
                 break;
             case MilkType.Whole:
                 _milkText = "W";
-                _milkOrder = OrderDictionary.MILKS[2];
+                _milkOrderType = OrderDictionary.MILKS[2];
                 break;
         }
     }

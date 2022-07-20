@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 public class Player : NetworkBehaviour
 {
     public static event Action<Interactable, Player> OnAnyPlayerInteraction;
-    public static event Action<Pickup> OnAnyPlayerPickUp;
 
     public static PlayerController playerController;
 
@@ -29,9 +28,17 @@ public class Player : NetworkBehaviour
 
     [SerializeField] [SyncVar] private bool _isHoldingItem = false;
 
+    private WaitForSeconds _resetPlaceableWaitTime;
+
     public bool GetIsHoldingItem()
     {
         return _isHoldingItem;
+    }
+
+    private void Start()
+    {
+        float _resetTimer = .5f;
+        _resetPlaceableWaitTime = new WaitForSeconds(_resetTimer);
     }
 
     #region Server
@@ -46,7 +53,6 @@ public class Player : NetworkBehaviour
 
         _isHoldingItem = true;
 
-        OnAnyPlayerPickUp?.Invoke(pickupItem);
     }
 
     [Command]
@@ -63,6 +69,7 @@ public class Player : NetworkBehaviour
         _playerHeldPickup.SetParent(null);
         _playerHeldPickup.PlaceItem(placementPosition, placementRotation);
         _isHoldingItem = false;
+        _playerHeldPickup = null;
     }
 
     [Command]
@@ -92,9 +99,12 @@ public class Player : NetworkBehaviour
             // }
 
             TryPickup();
-            ClientTryPickupFromEspMachine();
+            TryPickUpFromPlaceable();
+            
             TryInteract();
+            
             TryPlace();
+            TryPlaceInPickup();
         }
 
         if (Input.GetKey(KeyCode.Q))
@@ -125,31 +135,13 @@ public class Player : NetworkBehaviour
 
         hit.transform.TryGetComponent(out Pickup item);
 
+        if (!item.GetCanBePickedUp()) return;
+
         if (item.GetIsBeingHeld()) return;
 
         CmdPickUp(item);
     }
-
-    private void ClientTryPickupFromEspMachine()
-    {
-        if (_isHoldingItem)
-        {
-            return;
-        }
-
-        if (NetworkServer.active) return;
-
-        //TODO: fix range
-        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue)) return;
-
-        if (!hit.transform.TryGetComponent(out EspMachinePourButtonTrigger trigger)) return;
-
-        if (!trigger.GetHasObject()) return;
-
-        trigger.GetPickUp();
-
-        CmdPickUp(trigger.GetPickUp());
-    }
+    
 
     private void TryInteract()
     {
@@ -169,13 +161,48 @@ public class Player : NetworkBehaviour
 
         hit.transform.TryGetComponent(out Placeable placeable);
 
-        if (!placeable.CanPlace(_playerHeldPickup)) return;
-
         if (placeable.GetHasItem()) return;
 
-        placeable.SetHasItem(true);
+        if (!placeable.CanPlace(_playerHeldPickup)) return;
 
         CmdPlaceItem(placeable.GetObjectPlacementPosition(), placeable.GetObjectPlacementRotation());
+    }
+
+    private void TryPlaceInPickup()
+    {
+        if (!_isHoldingItem) return;
+        
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, pickUpLayer)) return;
+
+        if (hit.transform.TryGetComponent(out MilkPitcher pitcher))
+        {
+            if (pitcher.GetIsFull()) return;
+            
+            if (!_playerHeldPickup.TryGetComponent(out Milk milk)) return;
+
+            pitcher.PourMilkInPitcher(milk.GetMilkOrderType());
+        }
+    }
+
+    private void TryPickUpFromPlaceable()
+    {
+        if (_isHoldingItem) return;
+
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, placeLayer)) return;
+
+        hit.transform.TryGetComponent(out Placeable placeable);
+
+        if (!placeable.GetHasItem()) return;
+        
+        CmdPickUp(placeable.GetPickupInPlaceable());
+
+        StartCoroutine(RemovePickupInPlaceableAfterWaitTime(placeable));
+    }
+
+    private IEnumerator RemovePickupInPlaceableAfterWaitTime(Placeable placeable)
+    {
+        yield return _resetPlaceableWaitTime;
+        placeable.RemovePickupInPlaceable();
     }
 
     private Ray CastRay()

@@ -7,13 +7,6 @@ using UnityEngine;
 
 public class SyrupBottle : Interactable
 {
-    [SerializeField] private Animator animator;
-
-    [SerializeField] private TextMeshProUGUI syrupTMP;
-
-    [SyncVar(hook = nameof(OnSyrupTextChange))]
-    private string _syrupText;
-
     public enum SyrupType
     {
         Vanilla,
@@ -24,9 +17,32 @@ public class SyrupBottle : Interactable
     }
 
     [SerializeField] private SyrupType _syrupType;
+    [SerializeField] private GameObject syurpHead;
+
+    [SerializeField] private TextMeshProUGUI syrupTMP;
+
+    [SyncVar(hook = nameof(OnSyrupTextChange))]
+    private string _syrupText;
+
+    public event Action OnSyrupPumped;
+
+    [SerializeField] private bool _isPressed;
+
+    private Vector3 originalSyrupHeadPos;
+    private Vector3 moveToPos;
+    float speed = 10f;
+
+    public string GetSyrupText()
+    {
+        return _syrupText;
+    }
 
     private void Start()
     {
+        originalSyrupHeadPos = syurpHead.transform.localPosition;
+        moveToPos = new Vector3(0f, -0.043f, 0f);
+
+
         switch (_syrupType)
         {
             case SyrupType.Vanilla:
@@ -52,8 +68,33 @@ public class SyrupBottle : Interactable
     {
         if (this != interactable) return;
 
-        animator.SetTrigger("isPumped");
+        if (_isPressed) return;
+
+        _isPressed = true;
+        
+        StartCoroutine(StartPumpMotion());
+
+        OnSyrupPumped?.Invoke();
     }
+
+
+    private void Update()
+    {
+        if (!_isPressed) return;
+        
+        syurpHead.transform.localPosition =
+            Vector3.Lerp(syurpHead.transform.localPosition, moveToPos, speed * Time.deltaTime);
+    }
+
+    private IEnumerator StartPumpMotion()
+    {
+        yield return new WaitForSeconds(.5f);
+        moveToPos = originalSyrupHeadPos;
+        yield return new WaitForSeconds(.5f);
+        _isPressed = false;
+        moveToPos = new Vector3(0f, -0.043f, 0f);
+    }
+
 
     private void OnSyrupTextChange(string oldText, string newText)
     {

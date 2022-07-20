@@ -8,13 +8,25 @@ using UnityEngine.EventSystems;
 public abstract class Pickup : NetworkBehaviour
 {
     [SerializeField] [SyncVar] private Transform _parent;
-   
+
     [SerializeField] private new Rigidbody rigidbody;
-   
+
     [SerializeField] private bool isBeingHeld = false;
 
 
     [SyncVar] private Player _player;
+
+    private bool canBePickedUp = true;
+
+    public void SetCanBePickedUp(bool value)
+    {
+        canBePickedUp = value;
+    }
+
+    public bool GetCanBePickedUp()
+    {
+        return canBePickedUp;
+    }
 
     public bool GetIsBeingHeld()
     {
@@ -50,7 +62,7 @@ public abstract class Pickup : NetworkBehaviour
         transform.rotation = placeRotation;
     }
 
-    //[ServerCallback]
+    [ServerCallback]
     private void Update()
     {
         if (_parent != null)
@@ -67,4 +79,5 @@ public abstract class Pickup : NetworkBehaviour
         _player.CmdPickUp(pickup);
         _player = null;
     }
+    
 }
