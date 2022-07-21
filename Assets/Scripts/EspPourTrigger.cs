@@ -11,8 +11,13 @@ public class EspPourTrigger : MonoBehaviour
     private string shotSetting;
     private string espSetting;
 
+    private WaitForSeconds _waitForSeconds;
+
     private void Start()
     {
+        float waitTime = .1f;
+        _waitForSeconds = new WaitForSeconds(waitTime);
+
         EspMachineButton.onPourButtonPressed += EspMachineButton_OnPourButtonPressed;
 
         EspMachineButton.onBlondeButtonPressed += EspMachineButton_OnBlondeButtonPressed;
@@ -61,6 +66,12 @@ public class EspPourTrigger : MonoBehaviour
 
     private void EspMachineButton_OnShotsButtonPressed()
     {
+        StartCoroutine(WaitForShotButton());
+    }
+
+    private IEnumerator WaitForShotButton()
+    {
+        yield return _waitForSeconds;
         shotSetting = shotsScreen.GetCurrentSetting();
     }
 }

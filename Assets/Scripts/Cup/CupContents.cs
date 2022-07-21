@@ -31,12 +31,25 @@ public class CupContents : NetworkBehaviour
 
     [SyncVar(hook = nameof(OnMilkChange))] private string _orderMilk;
 
+    private bool _hasEspresso;
+    private bool _hasMilk;
+
+    public bool GetHasEspresso()
+    {
+        return _hasEspresso;
+    }
+
+    public bool GetHasMilk()
+    {
+        return _hasMilk;
+    }
+
     private void Start()
     {
         _order = new Order();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         Debug.Log(_order.ToString());
     }
@@ -82,8 +95,7 @@ public class CupContents : NetworkBehaviour
     {
         _orderMilk = milk;
     }
-
-
+    
     private void OnOrderSizeChange(string oldText, string newText)
     {
         _order.SetSize(newText);
@@ -97,6 +109,7 @@ public class CupContents : NetworkBehaviour
     private void OnOrderEspressoChange(string oldText, string newText)
     {
         _order.SetEspresso(newText);
+        _hasEspresso = true;
     }
 
 
@@ -120,5 +133,6 @@ public class CupContents : NetworkBehaviour
     private void OnMilkChange(string oldText, string newText)
     {
         _order.SetMilk(newText);
+        _hasMilk = true;
     }
 }

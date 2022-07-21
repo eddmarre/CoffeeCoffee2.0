@@ -8,6 +8,16 @@ public class MilkSpawner : Interactable
 {
     [SerializeField] private GameObject milkPrefab;
     [SerializeField] private Transform spawnLocation;
+     private Fridge fridge;
+
+    private void Start()
+    {
+        fridge = FindObjectOfType<Fridge>();
+        
+        if(fridge==null)
+            Debug.LogWarning("No fridge found");
+    }
+
 
     [Serializable]
     private enum MilkSpawnerType
@@ -47,5 +57,7 @@ public class MilkSpawner : Interactable
 
             NetworkServer.Spawn(milkGO);
         }
+        
+        fridge.CloseFridge();
     }
 }

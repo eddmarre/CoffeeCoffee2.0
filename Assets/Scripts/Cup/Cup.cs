@@ -11,6 +11,8 @@ public class Cup : Pickup
 
     [SerializeField] private BoxCollider cupCollider;
 
+    [SerializeField] private CupContents cupContents;
+    
     public enum CupSize
     {
         Small,
@@ -19,7 +21,6 @@ public class Cup : Pickup
     }
 
     [SyncVar] private CupSize _cupSize;
-    [SyncVar] private string _cupOrder;
 
     private Vector3 _smallCupScale;
     private Vector3 _mediumCupScale;
@@ -36,11 +37,7 @@ public class Cup : Pickup
     private Vector3 _smallCupColliderCenter;
     private Vector3 _mediumCupColliderCenter;
     private Vector3 _largeCupColliderCenter;
-    
-    public string GetCupOrder()
-    {
-        return _cupOrder;
-    }
+
 
 
     public void SetCupSize(CupSize cupSize)
@@ -60,19 +57,26 @@ public class Cup : Pickup
 
     private void AssignCupSize()
     {
+        StartCoroutine(WaitUntilObjectIsInitialized());
+    }
+
+    private IEnumerator WaitUntilObjectIsInitialized()
+    {
+        float timeToWait = .1f;
+        yield return new WaitForSeconds(timeToWait);
         switch (_cupSize)
         {
             case CupSize.Small:
                 SetCupSize(_smallCupScale, _smallLidOffset, _smallCupColliderSize, _smallCupColliderCenter);
-                _cupOrder = OrderDictionary.SIZES[0];
+                cupContents.SetSize(OrderDictionary.SIZES[0]);
                 break;
             case CupSize.Medium:
                 SetCupSize(_mediumCupScale, _mediumLidOffset, _mediumCupColliderSize, _mediumCupColliderCenter);
-                _cupOrder = OrderDictionary.SIZES[1];
+                cupContents.SetSize(OrderDictionary.SIZES[1]);
                 break;
             case CupSize.Large:
                 SetCupSize(_largeCupScale, _largeLidOffset, _largeCupColliderSize, _largeCupColliderCenter);
-                _cupOrder = OrderDictionary.SIZES[2];
+                cupContents.SetSize(OrderDictionary.SIZES[2]);
                 break;
         }
     }

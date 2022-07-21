@@ -53,4 +53,12 @@ public class Fridge : Interactable
         collider.center = center;
         collider.size = size;
     }
+    
+    
+    public void CloseFridge()
+    {
+        SetIsActive(false);
+        animator.SetBool("isOpen", GetIsActive());
+        SetColliderSize(_closeColliderCenter, _closeColliderSize);
+    }
 }

@@ -21,6 +21,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private LayerMask pickUpLayer;
     [SerializeField] private LayerMask interactLayer;
     [SerializeField] private LayerMask placeLayer;
+    [SerializeField] private LayerMask counterLayer;
 
     [SerializeField] private Transform holdItemTransform;
 
@@ -28,7 +29,7 @@ public class Player : NetworkBehaviour
 
     [SerializeField] [SyncVar] private bool _isHoldingItem = false;
 
-    private WaitForSeconds _resetPlaceableWaitTime;
+    private WaitForSeconds _waitForSeconds;
 
     public bool GetIsHoldingItem()
     {
@@ -37,8 +38,9 @@ public class Player : NetworkBehaviour
 
     private void Start()
     {
-        float _resetTimer = .5f;
-        _resetPlaceableWaitTime = new WaitForSeconds(_resetTimer);
+        // float _resetTimer = .5f;
+        float _resetTimer = .1f;
+        _waitForSeconds = new WaitForSeconds(_resetTimer);
     }
 
     #region Server
@@ -52,7 +54,6 @@ public class Player : NetworkBehaviour
         _playerHeldPickup.SetParent(holdItemTransform);
 
         _isHoldingItem = true;
-
     }
 
     [Command]
@@ -100,17 +101,19 @@ public class Player : NetworkBehaviour
 
             TryPickup();
             TryPickUpFromPlaceable();
-            
+
             TryInteract();
-            
+
             TryPlace();
             TryPlaceInPickup();
         }
 
         if (Input.GetKey(KeyCode.Q))
         {
-            if (_isHoldingItem)
+            if (!TryPlaceOnCounter() && _isHoldingItem)
+            {
                 CmdDropItem();
+            }
         }
     }
 
@@ -141,7 +144,7 @@ public class Player : NetworkBehaviour
 
         CmdPickUp(item);
     }
-    
+
 
     private void TryInteract()
     {
@@ -171,17 +174,51 @@ public class Player : NetworkBehaviour
     private void TryPlaceInPickup()
     {
         if (!_isHoldingItem) return;
-        
+
         if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, pickUpLayer)) return;
 
         if (hit.transform.TryGetComponent(out MilkPitcher pitcher))
         {
             if (pitcher.GetIsFull()) return;
-            
+
             if (!_playerHeldPickup.TryGetComponent(out Milk milk)) return;
 
             pitcher.PourMilkInPitcher(milk.GetMilkOrderType());
+
+            CmdDropItem();
+
+            StartCoroutine(WaitUntilPlayerDropsItemBeforeDelete(milk));
         }
+
+        if (hit.transform.TryGetComponent(out CupContents cupContents))
+        {
+            if (cupContents.GetHasMilk()) return;
+
+            if (!_playerHeldPickup.TryGetComponent(out MilkPitcher milkPitcher)) return;
+
+            if (!milkPitcher.GetIsSteamed()) return;
+
+            cupContents.SetTemperature(milkPitcher.GetTemperatureOfMilkInPitcher());
+            cupContents.SetMilk(milkPitcher.GetMilkInPitcher());
+
+            milkPitcher.PourMilkPitcherIntoCup();
+        }
+    }
+
+    private IEnumerator WaitUntilPlayerDropsItemBeforeDelete(Milk milk)
+    {
+        yield return _waitForSeconds;
+        milk.UseMilk();
+    }
+
+    private bool TryPlaceOnCounter()
+    {
+        if (!_isHoldingItem) return false;
+
+        if (!Physics.Raycast(CastRay(), out RaycastHit hit, float.MaxValue, counterLayer)) return false;
+
+        CmdPlaceItem(hit.point, Quaternion.identity);
+        return true;
     }
 
     private void TryPickUpFromPlaceable()
@@ -193,7 +230,7 @@ public class Player : NetworkBehaviour
         hit.transform.TryGetComponent(out Placeable placeable);
 
         if (!placeable.GetHasItem()) return;
-        
+
         CmdPickUp(placeable.GetPickupInPlaceable());
 
         StartCoroutine(RemovePickupInPlaceableAfterWaitTime(placeable));
@@ -201,7 +238,7 @@ public class Player : NetworkBehaviour
 
     private IEnumerator RemovePickupInPlaceableAfterWaitTime(Placeable placeable)
     {
-        yield return _resetPlaceableWaitTime;
+        yield return _waitForSeconds;
         placeable.RemovePickupInPlaceable();
     }
 

@@ -64,4 +64,9 @@ public class Milk : Pickup
     {
         milkTypeTMP.text = _milkText;
     }
+
+    public void UseMilk()
+    {
+      Destroy(gameObject);
+    }
 }

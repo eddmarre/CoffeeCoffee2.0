@@ -5,16 +5,19 @@ using UnityEngine;
 
 public class EspMachineLeverController : MonoBehaviour
 {
-    [SerializeField] private Transform _leverRotationTransform;
-
+    [SerializeField] private Transform leverRotationTransform;
+    [SerializeField] private MilkSteamTrigger milkSteamTrigger;
 
     private bool _isLeverDown;
 
-    private Quaternion originalRot;
+    private Quaternion _moveToRot;
+    
+    private float _leverMoveSpeed = 3f;
 
     private void Start()
     {
-        originalRot = _leverRotationTransform.rotation;
+        _moveToRot = Quaternion.Euler(0f, 0f, 0f);
+
         EspMachineButton.onLeverButtonPressed += EspMachineButton_OnLeverButtonPressed;
     }
 
@@ -25,19 +28,23 @@ public class EspMachineLeverController : MonoBehaviour
 
     private void EspMachineButton_OnLeverButtonPressed()
     {
+        if (milkSteamTrigger.GetIsSteaming()) return;
+        
         _isLeverDown = !_isLeverDown;
 
-        if (_isLeverDown)
-        {
-        }
+        _moveToRot = Quaternion.Euler(0f, 0f, _isLeverDown ? 90f : 0f);
     }
 
 
     private void Update()
     {
-        if (!_isLeverDown) return;
-        _leverRotationTransform.rotation =
-            Quaternion.RotateTowards(_leverRotationTransform.rotation, new Quaternion(0f, 0f, 80f, 0f),
-                1f * Time.deltaTime);
+        leverRotationTransform.rotation =
+            Quaternion.Slerp(leverRotationTransform.rotation, _moveToRot,
+                _leverMoveSpeed * Time.deltaTime);
+    }
+
+    public bool GetIsLeverDown()
+    {
+        return _isLeverDown;
     }
 }

@@ -276,6 +276,7 @@ MonoBehaviour:
   cupTransform: {fileID: 1616867483337748042}
   lidTransform: {fileID: 3119642054521822410}
   cupCollider: {fileID: 1757869228}
+  cupContents: {fileID: 6393390812406440992}
 --- !u!114 &6393390812406440992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288,6 +289,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8eda13c7728b171479579b85a66b1a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
 --- !u!54 &7562321796501706744
 Rigidbody:
   m_ObjectHideFlags: 0

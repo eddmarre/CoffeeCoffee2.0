@@ -599,6 +599,9 @@ MonoBehaviour:
   placeLayer:
     serializedVersion: 2
     m_Bits: 512
+  counterLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   holdItemTransform: {fileID: 5015421369703063329}
   _isHoldingItem: 0
 --- !u!114 &7987478058101098020

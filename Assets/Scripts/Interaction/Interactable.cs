@@ -18,7 +18,7 @@ public abstract class Interactable : NetworkBehaviour
     {
         isActive = value;
     }
-    
+
     public override void OnStartServer()
     {
         Player.OnAnyPlayerInteraction += CmdPlayer_OnAnyPlayerInteraction;
