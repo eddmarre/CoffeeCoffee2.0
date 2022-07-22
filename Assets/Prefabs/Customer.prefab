@@ -540,10 +540,12 @@ GameObject:
   - component: {fileID: 2416158638157858697}
   - component: {fileID: 8392031018481000731}
   - component: {fileID: 5129182969775178407}
+  - component: {fileID: 2450049453432053980}
+  - component: {fileID: 3332364140491269558}
   - component: {fileID: -7735862295783001403}
   - component: {fileID: 8241548009951799781}
   - component: {fileID: 2007834858893580705}
-  - component: {fileID: 2792402852953789382}
+  - component: {fileID: 8951973739970119424}
   m_Layer: 7
   m_Name: Customer
   m_TagString: Untagged
@@ -619,6 +621,44 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+--- !u!114 &2450049453432053980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6629483355526280678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 0
+  animator: {fileID: 8241548009951799781}
+--- !u!195 &3332364140491269558
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6629483355526280678}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0.1
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!136 &-7735862295783001403
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -671,23 +711,38 @@ MonoBehaviour:
   customerOrderText: {fileID: 3784231247646579853}
   customerNameText: {fileID: 1535564888668343259}
   isFemale: 1
---- !u!114 &2792402852953789382
+  customerSkins:
+  - {fileID: 2100000, guid: 7d1c46152c97f4c4bbfe7d5e4596c95e, type: 2}
+  - {fileID: 2100000, guid: 5b01bc2bde39e864a9f6cef7db48711b, type: 2}
+  - {fileID: 2100000, guid: cc5ba20fcd17f164fadc1d8afa675b73, type: 2}
+  - {fileID: 2100000, guid: 382ddbf2744b3de47be7b63cf4d0fd12, type: 2}
+  - {fileID: 2100000, guid: c65b4622a07a3024c922f5e325ec09d2, type: 2}
+  - {fileID: 2100000, guid: 3fbc4723013d6134ba18114a6395e305, type: 2}
+  - {fileID: 2100000, guid: 97788c85ffa3b1a44a7d3fb93f8ec5e9, type: 2}
+  - {fileID: 2100000, guid: 4b9751dad5fe4e84ab578efea4e91208, type: 2}
+  - {fileID: 2100000, guid: 35d7cdf99e8449f41ade08209fdc9546, type: 2}
+  - {fileID: 2100000, guid: 5bbd6722aa9719045a50ae9446452a4b, type: 2}
+  - {fileID: 2100000, guid: 6c6136c201df46d43ac90030b3a3a01e, type: 2}
+  - {fileID: 2100000, guid: 26fa10a4c40808342a1dde99bd21d9e6, type: 2}
+  customerRenderer: {fileID: 8962083613649658877}
+  customerMovement: {fileID: 8951973739970119424}
+  hasOrdered: 0
+--- !u!114 &8951973739970119424
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6629483355526280678}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5caafb613de051a4cbf6ba2c52686339, type: 3}
+  m_Script: {fileID: 11500000, guid: 67817d6e918052341a359d3541a6613d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  invert: 1
-  targetTransform: {fileID: 5056255233040089167}
-  _players: []
+  navMeshAgent: {fileID: 3332364140491269558}
+  animator: {fileID: 8241548009951799781}
 --- !u!1 &7630326256162260366
 GameObject:
   m_ObjectHideFlags: 0

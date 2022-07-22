@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
@@ -14,6 +15,11 @@ public class Customer : Interactable
 
     [SerializeField] private bool isFemale;
 
+    [SerializeField] private Material[] customerSkins;
+    [SerializeField] private Renderer customerRenderer;
+
+    [SerializeField] private CustomerMovement customerMovement;
+
     [SyncVar(hook = nameof(OnCustomerOrderDialogueChange))]
     private string _customerOrderDialogue;
 
@@ -23,10 +29,23 @@ public class Customer : Interactable
     private Order _order;
 
     private RandomCustomerOrder _randomCustomerOrder;
+
+    public static event Action<Customer> onCustomerServed;
+
     //try calling these with hooks so that they show up on everyone's machine
     //currently only host can see when the customer has been served
-    [SyncVar] private bool _hasOrdered;
+    [SyncVar] public bool hasOrdered;
     [SyncVar] private bool _isServed;
+
+    private Random _randomSkin = new Random();
+    [SyncVar] private int randomIndex;
+
+    [ServerCallback]
+    public void OnEnable()
+    {
+        randomIndex = _randomSkin.Next(customerSkins.Length);
+        customerRenderer.material = customerSkins[randomIndex];
+    }
 
 
     [ClientRpc]
@@ -34,20 +53,47 @@ public class Customer : Interactable
     {
         if (interactable != this) return;
 
-        if (_hasOrdered && !_isServed)
+        if (hasOrdered && !_isServed)
         {
+            chatBubble.SetActive(true);
+
             _customerOrderDialogue = _randomCustomerOrder.GetRandomOutro();
 
             _isServed = true;
+
+            StartCoroutine(RemoveCustomerAfterServed());
         }
 
-        if (_hasOrdered) return;
+        if (this != CustomerOrderTracker.Instance.CheckCurrentCustomerInFrontOfLine()) return;
+
+        if (hasOrdered) return;
 
         chatBubble.SetActive(true);
 
         CreateCustomerOrderDialogue();
 
-       _hasOrdered = true;
+        hasOrdered = true;
+
+        StartCoroutine(MoveAfterSomeTime());
+    }
+
+    private IEnumerator MoveAfterSomeTime()
+    {
+        yield return new WaitForSeconds(5f);
+        CustomerOrderTracker.Instance.RemoveCustomerFromLine();
+        chatBubble.SetActive(false);
+        customerMovement.MoveAfterOrdering();
+    }
+
+    private IEnumerator RemoveCustomerAfterServed()
+    {
+        yield return new WaitForSeconds(5f);
+        ResetCustomer();
+        if (NetworkServer.active)
+        {
+            onCustomerServed?.Invoke(this);
+        }
+        //CustomerSpawner.Instance.DeleteCustomer(this);
     }
 
     private void CreateCustomerOrderDialogue()
@@ -73,5 +119,12 @@ public class Customer : Interactable
     private void OnCustomerNameChange(string oldText, string newText)
     {
         customerNameText.text = newText;
+    }
+
+    private void ResetCustomer()
+    {
+        hasOrdered = false;
+        _isServed = false;
+        chatBubble.SetActive(false);
     }
 }

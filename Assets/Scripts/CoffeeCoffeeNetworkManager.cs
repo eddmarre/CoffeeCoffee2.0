@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class CoffeeCoffeeNetworkManager : NetworkManager
 {
-    [SerializeField] private GameObject cup;
-    [SerializeField] private GameObject customer;
     private static List<Player> _players = new List<Player>();
 
     public static List<Player> GetPlayers()
@@ -18,21 +16,16 @@ public class CoffeeCoffeeNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
-        
+
         _players.Add(conn.identity.GetComponent<Player>());
-        
-        
-        if (_players.Count > 1) return;
 
 
-        SpawnSomething(customer);
-        // SpawnSomething(cup);
-        // SpawnSomething(cup);
     }
+    
 
     private void SpawnSomething(GameObject objectToSPawn)
     {
-        GameObject spawnedObject = Instantiate(objectToSPawn, Vector3.up, Quaternion.identity);
+        GameObject spawnedObject = Instantiate(objectToSPawn, new Vector3(0f, 0f, -20f), Quaternion.identity);
 
         NetworkServer.Spawn(spawnedObject);
     }
